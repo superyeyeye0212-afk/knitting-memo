@@ -63,7 +63,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-black">
-      <main className="mx-auto max-w-2xl px-4 py-16">
+      <main className="mx-auto max-w-2xl px-4 py-8 sm:py-16">
         <h1 className="text-4xl font-bold text-center text-zinc-900 dark:text-zinc-50 mb-10">
           編み物メモ
         </h1>
@@ -122,7 +122,7 @@ export default function Home() {
           </div>
           <button
             type="submit"
-            className="w-full sm:w-auto bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-medium px-6 py-2 rounded hover:bg-zinc-700 dark:hover:bg-zinc-300 transition-colors"
+            className="w-full sm:w-auto bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-medium px-6 py-3 rounded hover:bg-zinc-700 dark:hover:bg-zinc-300 transition-colors"
           >
             保存する
           </button>
@@ -144,7 +144,7 @@ export default function Home() {
                   </h2>
                   <button
                     onClick={() => handleDelete(memo.id)}
-                    className="text-sm text-red-500 hover:text-red-700 transition-colors"
+                    className="text-sm text-red-500 hover:text-red-700 transition-colors px-2 py-1"
                   >
                     削除
                   </button>
