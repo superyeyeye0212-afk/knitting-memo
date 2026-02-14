@@ -1,64 +1,163 @@
-import Image from "next/image";
+"use client";
+
+import { useState, useEffect } from "react";
+
+type Memo = {
+  id: string;
+  project: string;
+  yarn: string;
+  needle: string;
+  note: string;
+};
+
+const STORAGE_KEY = "knitting-memos";
+
+function loadMemos(): Memo[] {
+  if (typeof window === "undefined") return [];
+  const data = localStorage.getItem(STORAGE_KEY);
+  return data ? JSON.parse(data) : [];
+}
+
+function saveMemos(memos: Memo[]) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(memos));
+}
 
 export default function Home() {
+  const [memos, setMemos] = useState<Memo[]>([]);
+  const [project, setProject] = useState("");
+  const [yarn, setYarn] = useState("");
+  const [needle, setNeedle] = useState("");
+  const [note, setNote] = useState("");
+
+  useEffect(() => {
+    setMemos(loadMemos());
+  }, []);
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!project.trim()) return;
+
+    const newMemo: Memo = {
+      id: Date.now().toString(),
+      project: project.trim(),
+      yarn: yarn.trim(),
+      needle: needle.trim(),
+      note: note.trim(),
+    };
+
+    const updated = [newMemo, ...memos];
+    setMemos(updated);
+    saveMemos(updated);
+
+    setProject("");
+    setYarn("");
+    setNeedle("");
+    setNote("");
+  }
+
+  function handleDelete(id: string) {
+    const updated = memos.filter((m) => m.id !== id);
+    setMemos(updated);
+    saveMemos(updated);
+  }
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+    <div className="min-h-screen bg-zinc-50 dark:bg-black">
+      <main className="mx-auto max-w-2xl px-4 py-16">
+        <h1 className="text-4xl font-bold text-center text-zinc-900 dark:text-zinc-50 mb-10">
+          編み物メモ
+        </h1>
+
+        {/* 入力フォーム */}
+        <form onSubmit={handleSubmit} className="bg-white dark:bg-zinc-900 rounded-lg p-6 shadow mb-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                プロジェクト名 *
+              </label>
+              <input
+                type="text"
+                value={project}
+                onChange={(e) => setProject(e.target.value)}
+                placeholder="例: ベビーセーター"
+                className="w-full rounded border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-zinc-900 dark:text-zinc-100"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                糸
+              </label>
+              <input
+                type="text"
+                value={yarn}
+                onChange={(e) => setYarn(e.target.value)}
+                placeholder="例: メリノウール 並太"
+                className="w-full rounded border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-zinc-900 dark:text-zinc-100"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                針
+              </label>
+              <input
+                type="text"
+                value={needle}
+                onChange={(e) => setNeedle(e.target.value)}
+                placeholder="例: 棒針 8号"
+                className="w-full rounded border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-zinc-900 dark:text-zinc-100"
+              />
+            </div>
+          </div>
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+              メモ
+            </label>
+            <textarea
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              placeholder="例: 身頃は10号で編む。袖は8号。"
+              rows={3}
+              className="w-full rounded border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-zinc-900 dark:text-zinc-100"
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+          </div>
+          <button
+            type="submit"
+            className="w-full sm:w-auto bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-medium px-6 py-2 rounded hover:bg-zinc-700 dark:hover:bg-zinc-300 transition-colors"
           >
-            Documentation
-          </a>
-        </div>
+            保存する
+          </button>
+        </form>
+
+        {/* 一覧表示 */}
+        {memos.length === 0 ? (
+          <p className="text-center text-zinc-400">まだメモがありません</p>
+        ) : (
+          <div className="space-y-4">
+            {memos.map((memo) => (
+              <div
+                key={memo.id}
+                className="bg-white dark:bg-zinc-900 rounded-lg p-5 shadow"
+              >
+                <div className="flex justify-between items-start">
+                  <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+                    {memo.project}
+                  </h2>
+                  <button
+                    onClick={() => handleDelete(memo.id)}
+                    className="text-sm text-red-500 hover:text-red-700 transition-colors"
+                  >
+                    削除
+                  </button>
+                </div>
+                <div className="mt-2 text-sm text-zinc-600 dark:text-zinc-400 space-y-1">
+                  {memo.yarn && <p>糸: {memo.yarn}</p>}
+                  {memo.needle && <p>針: {memo.needle}</p>}
+                  {memo.note && <p className="mt-2 whitespace-pre-wrap">{memo.note}</p>}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </main>
     </div>
   );
